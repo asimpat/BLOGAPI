@@ -5,10 +5,14 @@ import { Auth } from './schema/auth.schema';
 import { RegisterDto } from './dtos/user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dtos/login.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel('Auth') private readonly authmodel: Model<Auth>) {}
+  constructor(
+    @InjectModel('Auth') private readonly authmodel: Model<Auth>,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async getEmail(email: string) {
     const newEmail = await this.authmodel.findOne({ email: email });
@@ -45,6 +49,8 @@ export class AuthService {
     if (!isPasswordValid) {
       return { msg: `Invalid credential` };
     }
-    return newEmail;
+
+    const payload = { email: newEmail.email, sub: newEmail._id };
+    return { access_token: this.jwtService.sign(payload) };
   }
 }

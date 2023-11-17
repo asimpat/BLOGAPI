@@ -4,13 +4,26 @@ import { AuthService } from './auth.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Auth, AuthSchema } from './schema/auth.schema';
 import { DatabaseModule } from 'src/db/database';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import * as process from 'process';
+import { config } from 'dotenv';
+import { JwtStrategy } from './strategy/jwt.strategy';
+config()
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
     DatabaseModule,
+    JwtModule.register({
+      secret: process.env.SECRET,
+      signOptions: {
+        expiresIn: '1d',
+      },
+    }),
+    PassportModule
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}
