@@ -14,8 +14,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async getEmail(email: string) {
-    const newEmail = await this.authmodel.findOne({ email: email });
+  async getEmail(username: string) {
+    const newEmail = await this.authmodel.findOne({ username: username });
     return newEmail;
   }
 
@@ -37,7 +37,7 @@ export class AuthService {
   }
 
   async login(loginUser: LoginDto) {
-    const newEmail = await this.getEmail(loginUser.email);
+    const newEmail = await this.getEmail(loginUser.username);
 
     if (!newEmail) {
       return { msg: `user does not exist` };
@@ -50,7 +50,9 @@ export class AuthService {
       return { msg: `Invalid credential` };
     }
 
-    const payload = { email: newEmail.email, sub: newEmail._id };
-    return { access_token: this.jwtService.sign(payload) };
+    const payload = { usermane: newEmail.username, sub: newEmail._id };
+
+    const token = this.jwtService.sign(payload);
+    return { user: { newEmail, token } };
   }
 }

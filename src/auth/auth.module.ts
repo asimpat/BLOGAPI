@@ -9,7 +9,8 @@ import { PassportModule } from '@nestjs/passport';
 import * as process from 'process';
 import { config } from 'dotenv';
 import { JwtStrategy } from './strategy/jwt.strategy';
-config()
+import { UsersModule } from 'src/users/users.module';
+config();
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ config()
         expiresIn: '1d',
       },
     }),
-    PassportModule
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
